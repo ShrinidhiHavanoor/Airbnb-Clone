@@ -83,4 +83,3 @@ export default function Header() {
     </div>
   );
 }
-//the search bar is in the header
