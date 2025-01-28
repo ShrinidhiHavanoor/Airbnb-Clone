@@ -44,16 +44,18 @@ export default function PlacePage() {
               Close Photos
             </button>
           </div>
-          {place?.photos?.length > 0 &&
-            place.photos.map((photo) => (
-              <img
-                onClick={() => setShowAllPhotos(true)}
-                className="aspect-square cursor-pointer object-cover"
-                key={photo}
-                src={"http://localhost:4000/uploads/" + photo}
-                alt=""
-              />
-            ))}
+          <div className="grid grid-cols-3 gap-3 overflow-hidden">
+            {place?.photos?.length > 0 &&
+              place.photos.map((photo) => (
+                <img
+                  onClick={() => setShowAllPhotos(true)}
+                  className="aspect-square object-cover cursor-pointer "
+                  key={photo}
+                  src={"http://localhost:4000/uploads/" + photo}
+                  alt=""
+                />
+              ))}
+          </div>
         </div>
       </div>
     );

@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const User = require("./models/User.js");
 const Place = require("./models/Place.js");
+const Booking = require("./models/Booking.js");
 const imageDownloader = require("image-downloader");
 const multer = require("multer");
 const fs = require("fs");
@@ -28,6 +29,15 @@ mongoose.connect(process.env.MONGO_URL);
 app.get("/test", (req, res) => {
   res.json("test ok");
 });
+
+function getUserDataFromReq(req) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+      if (err) throw err;
+      resolve(userData);
+    });
+  });
+}
 
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
@@ -196,6 +206,45 @@ app.put("/places/", async (req, res) => {
 app.get("/places", async (req, res) => {
   res.json(await Place.find());
 });
+
+app.post("/bookings", async (req, res) => {
+  const UserData = await getUserDataFromReq(req);
+  const { place, checkIn, checkout, numberOfGuests, name, phone, price } =
+    req.body;
+  Booking.create({
+    place,
+    checkIn,
+    checkout,
+    name,
+    numberOfGuests,
+    phone,
+    price,
+    user: UserData.id,
+  })
+    .then((doc) => {
+      res.json(doc);
+    })
+    .catch((err) => {
+      throw err;
+    });
+});
+
+app.get("/bookings", async (req, res) => {
+  const UserData = await getUserDataFromReq(req);
+  const bookings = await Booking.find({ user: UserData.id })
+    .lean()
+    .populate("place");
+  res.json(bookings);
+});
+
+// app.get("/bookings", async (req, res) => {
+//   const UserData = await getUserDataFromReq(req);
+//   res.json(
+//     Booking.find({
+//       user: UserData.id,
+//     }).populate("place")
+//   );
+// });
 
 app.listen(4000, (req, res) => {
   console.log("Server is running on port 4000");

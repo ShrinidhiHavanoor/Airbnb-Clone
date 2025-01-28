@@ -1,13 +1,51 @@
-import React from "react";
+import { differenceInCalendarDays } from "date-fns";
+import React, { useEffect } from "react";
+import { useState } from "react";
+import { useContext } from "react";
+import axios from "axios";
+import { Navigate } from "react-router-dom";
+import { UserContext } from "./UserContext";
 
 export default function BookingWidget({ place }) {
-  const [checkIn, setCheckIn] = React.useState("");
-  const [checkout, setCheckout] = React.useState("");
-  const [numberOfGuests, setNumberOfGuests] = React.useState(1);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkout, setCheckout] = useState("");
+  const [numberOfGuests, setNumberOfGuests] = useState(1);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [redirect, setRedirect] = useState("");
+  const { user } = useContext(UserContext);
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+    }
+  }, [user]);
+  let numberOfNights = 0;
+  if (checkIn && checkout) {
+    numberOfNights = differenceInCalendarDays(
+      new Date(checkout),
+      new Date(checkIn)
+    );
+  }
+  async function bookThisPlace() {
+    const response = await axios.post("/bookings", {
+      place: place._id,
+      checkIn,
+      checkout,
+      numberOfGuests,
+      name,
+      phone,
+      price: numberOfNights * place.price,
+    });
+    const bookingId = response.data._id;
+    setRedirect(`/account/bookings/${bookingId}`);
+  }
+  if (redirect) {
+    return <Navigate to={redirect} />;
+  }
   return (
     <div className="bg-white shadow p-4 rounded-2xl">
       <div className="text-2xl text-center">
-      Price: ₹{place?.price ? place.price : "N/A"} / per night
+        Price: ₹{place?.price ? place.price : "N/A"} / per night
       </div>
       <div className="border rounded-2xl mt-4">
         <div className="flex">
@@ -37,9 +75,30 @@ export default function BookingWidget({ place }) {
             min={1}
           />
         </div>
+        {numberOfNights > 0 && (
+          <div className=" py-3 px-4 border-t">
+            <label>Full name:</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
+              min={1}
+            />
+            <label>Phone number:</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(ev) => setPhone(ev.target.value)}
+              min={1}
+            />
+          </div>
+        )}
       </div>
 
-      <button className="primary mt-4">Book this place</button>
+      <button onClick={bookThisPlace} className="primary mt-4">
+        Book this place
+        {numberOfNights > 0 && <span>(₹{numberOfNights * place.price})</span>}
+      </button>
     </div>
   );
 }
