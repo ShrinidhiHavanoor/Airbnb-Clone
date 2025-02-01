@@ -5,6 +5,7 @@ import { useContext } from "react";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import { DatePicker } from "./components/ui/DatePicker";
 
 export default function BookingWidget({ place }) {
   const [checkIn, setCheckIn] = useState("");
@@ -51,19 +52,21 @@ export default function BookingWidget({ place }) {
         <div className="flex">
           <div className=" py-3 px-4 ">
             <label>check in:</label>
-            <input
+            <DatePicker className="px-1" date={checkIn} setDate={setCheckIn} />
+            {/* <input
               type="date"
               value={checkIn}
               onChange={(ev) => setCheckIn(ev.target.value)}
-            />
+            /> */}
           </div>
-          <div className=" py-3 px-4 border-l">
-            <label>check out:</label>
-            <input
+          <div className="py-3 px-4 border-l">
+            <label className="px-1 ">check out:</label>
+            <DatePicker className="" date={checkout} setDate={setCheckout} />
+            {/* <input
               type="date"
               value={checkout}
               onChange={(ev) => setCheckout(ev.target.value)}
-            />
+            /> */}
           </div>
         </div>
         <div className=" py-3 px-4 border-t">
