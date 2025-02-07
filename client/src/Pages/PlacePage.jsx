@@ -45,7 +45,7 @@ export default function PlacePage() {
         <div>
           <h2 className="font-semibold text-2xl">Extra Info</h2>
         </div>
-        <div className="mb-4 mt-2 text-sm text-gray-700 leading-5">
+        <div className="mb-4 mt-2 text-sm text-gray-700 leading-5 whitespace-pre-wrap">
           {place.extraInfo}
         </div>
       </div>
